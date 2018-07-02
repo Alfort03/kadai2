@@ -17,63 +17,65 @@ import utils.EncryptUtil;
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     public LoginServlet() {
         super();
     }
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-	    request.setAttribute("_token", request.getSession().getId());
-	    request.setAttribute("hasError", false);
-	    if(request.getSession().getAttribute("flush") != null) {
-	        request.setAttribute("flush", request.getSession().getAttribute("flush"));
-	        request.getSession().removeAttribute("flush");
-	    }
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setAttribute("_token", request.getSession().getId());
+        request.setAttribute("hasError", false);
+        if(request.getSession().getAttribute("flush") != null) {
+            request.setAttribute("flush", request.getSession().getAttribute("flush"));
+            request.getSession().removeAttribute("flush");
+        }
 
-	    RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/views/login/login.jsp");
-	    rd.forward(request, response);
-	}
+        RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/views/login/login.jsp");
+        rd.forward(request, response);
+    }
 
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-	    Boolean check_result = false;
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Boolean check_result = false;
 
-	    String code = request.getParameter("code");
-	    String plain_pass = request.getParameter("password");
+        String code = request.getParameter("code");
+        String plain_pass = request.getParameter("password");
 
-	    Employee e = null;
+        Employee e = null;
 
-	    if(code != null && !code.equals("") && plain_pass != null && !plain_pass.equals("")) {
-	        EntityManager em = DBUtil.createEntityManager();
+        if(code != null && !code.equals("") && plain_pass != null && !plain_pass.equals("")) {
+            EntityManager em = DBUtil.createEntityManager();
 
-	        String password = EncryptUtil.getPasswordEncrypt(
-	                plain_pass,
-	                (String)this.getServletContext().getAttribute("salt")
-	                );
+            String password = EncryptUtil.getPasswordEncrypt(
+                    plain_pass,
+                    (String)this.getServletContext().getAttribute("salt")
+                    );
 
-	        try {
-	            e = em.createNamedQuery("checkLoginCodeAndPassword" , Employee.class)
-	                  .setParameter("code", code)
-	                  .setParameter("pass", password)
-	                  .getSingleResult();
-	        } catch(NoResultException ex) {}
+            try {
+                e = em.createNamedQuery("checkLoginCodeAndPassword", Employee.class)
+                      .setParameter("code", code)
+                      .setParameter("pass", password)
+                      .getSingleResult();
+            } catch(NoResultException ex) {}
 
-	        em.close();
+            em.close();
 
-	        if(e != null) {
-	            check_result = true;
-	        }
-	    }
+            if(e != null) {
+                check_result = true;
+            }
+        }
 
-	    if(!check_result) {
-	        request.setAttribute("_token", request.getSession().getId());
-	        request.setAttribute("hasError", true);
+        if(!check_result) {
+            request.setAttribute("_token", request.getSession().getId());
+            request.setAttribute("hasError", true);
 
-	        RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/views/login/login.jsp");
-	        rd.forward(request, response);
-	    } else {
-	        request.getSession().setAttribute("login_employee", "ログインしました。");
-	        response.sendRedirect(request.getContextPath() + "/");
-	    }
-	}
+            RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/views/login/login.jsp");
+            rd.forward(request, response);
+        } else {
+            request.getSession().setAttribute("login_employee", e);
+
+            request.getSession().setAttribute("flush", "ログインしました。");
+            response.sendRedirect(request.getContextPath() + "/");
+        }
+    }
 }

@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import models.Employee;
 
+
 @WebServlet("/employees/new")
 public class EmployeesNewServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -26,5 +27,4 @@ public class EmployeesNewServlet extends HttpServlet {
 	    RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/views/employees/new.jsp");
 	    rd.forward(request, response);
 	}
-
 }

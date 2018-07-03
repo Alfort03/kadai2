@@ -17,10 +17,10 @@ import models.validators.EmployeeValidator;
 import utils.DBUtil;
 import utils.EncryptUtil;
 
+
 @WebServlet("/employees/update")
 public class EmployeesUpdateServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-
 
     public EmployeesUpdateServlet() {
         super();
